@@ -46,6 +46,16 @@ export default {
     danger: '#e07a66',   // ошибки и отмены
   },
 
+  // Адрес сайта со слэшем на конце: бот берёт отсюда фото мастеров и ссылку на Mini App.
+  siteUrl: 'https://mikerka1.github.io/visok/',
+
+  // Telegram-бот. Тексты бота лежат в supabase/functions/bot/texts.ts.
+  bot: {
+    cancelMinHours: 3,        // клиент может отменить или перенести запись не позже чем за столько часов
+    reviewDelayHours: 2,      // через сколько часов после визита просить оценку
+    adminContact: 'https://t.me/visok_admin_demo', // кому писать живому человеку
+  },
+
   // Плашка в футере. Для реального клиента: demo.enabled = false.
   demo: {
     enabled: true,

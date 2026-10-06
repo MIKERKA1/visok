@@ -32,6 +32,30 @@ async function rpc(fn, args) {
   return json;
 }
 
+// ─── Mini App в Telegram: запись идёт через функцию бота, она проверяет подпись initData ───
+const BOT_URL = `${SUPABASE_URL}/functions/v1/bot`;
+const tg = () => (window.Telegram?.WebApp?.initData ? window.Telegram.WebApp : null);
+async function botCall(path, args) {
+  const res = await fetch(`${BOT_URL}/miniapp/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ initData: tg().initData, ...args }),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) throw Object.assign(new Error(json?.error || `HTTP ${res.status}`), { code: json?.error });
+  return json;
+}
+// Имя и телефон, которые бот уже знает, подставляем в форму.
+let tgPrefilled = false;
+async function prefillFromBot() {
+  if (!tg() || tgPrefilled) return;
+  tgPrefilled = true;
+  try {
+    const me = await botCall('me', {});
+    if (me.phone || me.name) saveContact({ name: me.name, phone: me.phone, ...Object.fromEntries(Object.entries(loadContact()).filter(([, v]) => v)) });
+  } catch { /* форма просто останется пустой */ }
+}
+
 // ─── Время в часовом поясе заведения ───
 const fmt = (opts) => new Intl.DateTimeFormat('ru-RU', { timeZone: data.timezone, ...opts });
 const dayKeyOf = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: data.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
@@ -294,13 +318,16 @@ async function submit(form) {
   btn.disabled = true;
   btn.textContent = 'Записываем…';
   try {
-    state.result = await rpc('create_booking', {
+    const comment = form.elements.comment.value.trim() || null;
+    state.result = tg()
+      ? await botCall('book', { serviceId: state.serviceId, masterId: state.masterId, startsAt: state.slot, name, phone, comment })
+      : await rpc('create_booking', {
       p_service_id: state.serviceId,
       p_master_id: state.masterId,
       p_starts_at: state.slot,
       p_client_name: name,
       p_client_phone: phone,
-      p_comment: form.elements.comment.value.trim() || null,
+      p_comment: comment,
       p_website: form.elements.website.value || null,
     });
     saveContact({ name, phone });
@@ -325,6 +352,8 @@ async function submit(form) {
 }
 
 function close() {
+  // В Telegram после записи кнопка «Готово» закрывает Mini App целиком.
+  if (tg() && state.step === 'done') return tg().close();
   const finish = () => { dlg.close(); document.documentElement.style.overflow = ''; };
   if (reduced) return finish();
   animate(dlg, { opacity: 0, y: 24 }, { duration: dur.fast, ease }).then(finish);
@@ -342,6 +371,7 @@ titleEl.tabIndex = -1;
 
 export function openBooking({ serviceId, masterId } = {}, siteData) {
   data = siteData;
+  prefillFromBot();
   state = {
     step: null, history: [],
     serviceId: serviceId || null,

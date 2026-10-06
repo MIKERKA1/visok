@@ -90,3 +90,5 @@
   .booking { grid-template-columns: 90px 1fr 200px; align-items: start; }
   .booking select { grid-column: 3; grid-row: 1; justify-self: end; }
 }
+.adm-link { margin: 0 0 16px; }
+.adm-link__out { margin-top: 8px; word-break: break-all; }

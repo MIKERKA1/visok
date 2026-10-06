@@ -13,9 +13,10 @@ const toasts = document.querySelector('.toasts');
 const STATUS = { new: 'Новая', confirmed: 'Подтверждена', done: 'Пришёл', no_show: 'Не пришёл', cancelled: 'Отменена' };
 const SOURCE = { site: 'сайт', bot: 'бот', admin: 'админка' };
 const WEEKDAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-const TABS = { bookings: 'Записи', services: 'Услуги', masters: 'Мастера', schedule: 'График', gallery: 'Галерея', reviews: 'Отзывы' };
+const TABS = { bookings: 'Записи', services: 'Услуги', masters: 'Мастера', schedule: 'График', gallery: 'Галерея', reviews: 'Отзывы', bot: 'Бот' };
 
 let tz = 'Europe/Moscow';
+let botUsername = null;
 let ref = { services: [], masters: [], masterServices: [] };
 let shownFor = null;
 let day = null;
@@ -64,12 +65,13 @@ async function loadRef() {
     sb.from('services').select('*').order('sort_order'),
     sb.from('masters').select('*').order('sort_order'),
     sb.from('master_services').select('*'),
-    sb.from('settings').select('timezone').single(),
+    sb.from('settings').select('timezone, bot_username').single(),
   ]);
   const err = s.error || m.error || ms.error;
   if (err) throw err;
   ref = { services: s.data, masters: m.data, masterServices: ms.data };
   tz = st.data?.timezone || tz;
+  botUsername = st.data?.bot_username || null;
 }
 const masterName = (id) => ref.masters.find((m) => m.id === id)?.name || '—';
 const serviceName = (id) => ref.services.find((s) => s.id === id)?.name || '—';
@@ -145,7 +147,7 @@ function route() {
   document.getElementById('edit')?.close();
   const tab = currentTab();
   document.querySelectorAll('[data-tab]').forEach((a) => a.toggleAttribute('aria-current', a.dataset.tab === tab));
-  ({ bookings: renderBookings, schedule: renderSchedule }[tab] || (() => renderEntity(tab)))();
+  ({ bookings: renderBookings, schedule: renderSchedule, bot: renderBot }[tab] || (() => renderEntity(tab)))();
 }
 addEventListener('hashchange', route);
 
@@ -292,7 +294,10 @@ const ENTITIES = {
     ],
     row: (m) => `${m.photo_url ? `<img class="adm-thumb" src="${esc(m.photo_url)}" alt="">` : ''}<strong>${esc(m.name)}</strong> <span class="muted">${esc(m.specialization || '')}</span>`,
     extra: (m) => `<fieldset class="adm-checks"><legend>Какие услуги делает</legend>${ref.services.map((s) => `
-      <label><input type="checkbox" name="svc" value="${s.id}" ${ref.masterServices.some((x) => x.master_id === m?.id && x.service_id === s.id) ? 'checked' : ''}> ${esc(s.name)}</label>`).join('')}</fieldset>`,
+      <label><input type="checkbox" name="svc" value="${s.id}" ${ref.masterServices.some((x) => x.master_id === m?.id && x.service_id === s.id) ? 'checked' : ''}> ${esc(s.name)}</label>`).join('')}</fieldset>
+      ${m ? `<div class="adm-link"><p class="muted">${m.telegram_chat_id ? 'Telegram привязан.' : 'Telegram не привязан: мастер не получает уведомления.'}</p>
+        <button class="btn btn--small btn--ghost" type="button" data-link-tg="${m.id}">Ссылка для привязки Telegram</button>
+        <p class="adm-link__out" aria-live="polite"></p></div>` : ''}`,
     async afterSave(id, form) {
       const ids = [...form.querySelectorAll('[name="svc"]:checked')].map((c) => c.value);
       const del = await sb.from('master_services').delete().eq('master_id', id);
@@ -323,7 +328,7 @@ const ENTITIES = {
       { name: 'sort_order', label: 'Порядок', type: 'number' },
       { name: 'is_active', label: 'Показывать на сайте', type: 'checkbox' },
     ],
-    row: (r) => `<strong>${esc(r.author_name)}</strong> <span class="muted">${r.rating} из 5</span><span class="adm-clip">${esc(r.text)}</span>`,
+    row: (r) => `<strong>${esc(r.author_name)}</strong> <span class="muted">${r.rating} из 5</span>${r.source === 'bot' ? ' <span class="tag">из бота</span>' : ''}<span class="adm-clip">${esc(r.text)}</span>`,
   },
 };
 
@@ -378,6 +383,17 @@ function openEditor(key, item) {
   </form>`;
   const form = dlg.querySelector('form');
   dlg.querySelector('[data-cancel]').onclick = () => dlg.close();
+  const linkBtn = dlg.querySelector('[data-link-tg]');
+  if (linkBtn) linkBtn.onclick = async () => {
+    const out = dlg.querySelector('.adm-link__out');
+    const { data: code, error } = await sb.rpc('create_master_link_code', { p_master_id: linkBtn.dataset.linkTg });
+    if (error) return fail(error, 'Код не создан');
+    const url = botUsername ? `https://t.me/${botUsername}?start=m_${code}` : null;
+    out.innerHTML = url
+      ? `Отправьте мастеру ссылку, она действует 30 минут: <a class="link" href="${url}" target="_blank" rel="noopener">${url}</a>`
+      : `Код: <strong>${esc(code)}</strong>. Бот ещё не подключён, ссылка появится после запуска бота.`;
+    if (url) navigator.clipboard?.writeText(url).then(() => toast('Ссылка скопирована')).catch(() => {});
+  };
   form.querySelectorAll('[data-image]').forEach((input) => input.onchange = async () => {
     const file = input.files[0];
     if (!file) return;
@@ -497,6 +513,52 @@ const interval = (s, e) => `<div class="adm-int">
   <label>с <input type="time" name="start" value="${s}" step="900" required></label>
   <label>до <input type="time" name="end" value="${e}" step="900" required></label>
   <button class="btn btn--small btn--ghost" type="button" data-del-int aria-label="Убрать интервал">Убрать</button></div>`;
+
+// ─── Telegram-бот: администраторы и заблокированные клиенты ───
+async function renderBot() {
+  const view = document.getElementById('view');
+  const [admins, blocked] = await Promise.all([
+    sb.from('bot_admins').select('*').order('created_at'),
+    sb.from('clients').select('*').eq('blocked', true).order('updated_at', { ascending: false }),
+  ]);
+  if (admins.error || blocked.error) return fail(admins.error || blocked.error, 'Не загрузилось');
+  const link = botUsername ? `<a class="link" href="https://t.me/${esc(botUsername)}" target="_blank" rel="noopener">@${esc(botUsername)}</a>` : 'ещё не подключён';
+  view.innerHTML = `
+    <h1 class="adm-h1">Бот</h1>
+    <p>Бот: ${link}. Мастера привязываются ссылкой из карточки мастера.</p>
+    <h2 class="adm-h2">Администраторы бота</h2>
+    <p class="muted">Получают все уведомления, видят статистику, делают рассылку. Свой Telegram ID человек узнаёт командой /id в боте.</p>
+    <form class="adm-row adm-off" id="bot-admin">
+      <div class="field"><label for="ba-id">Telegram ID</label><input id="ba-id" name="tgid" inputmode="numeric" pattern="\\d{5,15}" required></div>
+      <div class="field"><label for="ba-name">Кто это</label><input id="ba-name" name="name" placeholder="Например: Ольга, управляющая"></div>
+      <button class="btn btn--small" type="submit">Добавить</button>
+    </form>
+    <ul class="adm-list" role="list">${admins.data.map((a) => `<li class="adm-item"><div class="adm-item__main"><strong>${esc(a.name || 'Без имени')}</strong> <span class="muted">${a.telegram_id}</span></div>
+      <button class="btn btn--small btn--ghost btn--danger" type="button" data-del-admin="${a.telegram_id}">Удалить</button></li>`).join('') || '<li class="muted">Пока никого.</li>'}</ul>
+    <h2 class="adm-h2">Заблокированные клиенты</h2>
+    <ul class="adm-list" role="list">${blocked.data.map((c) => `<li class="adm-item"><div class="adm-item__main"><strong>${esc(c.name || 'Без имени')}</strong> <span class="muted">${esc(c.phone || '')} ${c.telegram_id ? `Telegram ${c.telegram_id}` : ''}</span></div>
+      <button class="btn btn--small btn--ghost" type="button" data-unblock="${c.id}">Разблокировать</button></li>`).join('') || '<li class="muted">Никто не заблокирован.</li>'}</ul>`;
+  view.querySelector('#bot-admin').onsubmit = async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const { error } = await sb.from('bot_admins').insert({ telegram_id: Number(f.elements.tgid.value), name: f.elements.name.value.trim() || null });
+    if (error) return fail(error.code === '23505' ? { message: 'этот ID уже в списке' } : error);
+    toast('Администратор бота добавлен');
+    renderBot();
+  };
+  view.querySelectorAll('[data-del-admin]').forEach((b) => b.onclick = async () => {
+    if (!confirm('Убрать из администраторов бота?')) return;
+    const { error } = await sb.from('bot_admins').delete().eq('telegram_id', b.dataset.delAdmin);
+    if (error) return fail(error, 'Не удалено');
+    renderBot();
+  });
+  view.querySelectorAll('[data-unblock]').forEach((b) => b.onclick = async () => {
+    const { error } = await sb.from('clients').update({ blocked: false }).eq('id', b.dataset.unblock);
+    if (error) return fail(error);
+    toast('Клиент разблокирован');
+    renderBot();
+  });
+}
 
 // ─── Старт ───
 async function start() {

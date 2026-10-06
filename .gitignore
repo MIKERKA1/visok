@@ -4,3 +4,7 @@ dist
 .raw
 *.local
 .impeccable
+
+# Копия src/config.js для Edge Function, создаётся npm run bot:sync
+supabase/functions/bot/site-config.js
+deno.lock

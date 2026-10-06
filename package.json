@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bot:sync": "node -e \"require('fs').copyFileSync('src/config.js','supabase/functions/bot/site-config.js')\"",
+    "bot:test": "npm run bot:sync && npx -y deno test supabase/functions/bot/",
+    "bot:deploy": "npm run bot:sync && npx -y supabase functions deploy bot --no-verify-jwt"
   },
   "dependencies": {
     "@fontsource-variable/golos-text": "^5.3.0",

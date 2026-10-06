@@ -133,6 +133,22 @@ lb.addEventListener('touchend', (e) => {
   touchX = null;
 });
 
+// ─── Mini App: сайт открыт кнопкой в Telegram-боте (адрес с ?tgapp=1) ───
+// Скрипт Telegram грузим только здесь, обычным посетителям он не нужен.
+if (new URLSearchParams(location.search).has('tgapp')) {
+  const s = document.createElement('script');
+  s.src = 'https://telegram.org/js/telegram-web-app.js';
+  s.onload = () => {
+    const app = window.Telegram?.WebApp;
+    if (!app?.initData) return;
+    app.ready();
+    app.expand();
+    document.documentElement.classList.add('tg');
+    book({});
+  };
+  document.head.append(s);
+}
+
 heroIntro();
 reveal('.price-row');
 reveal('.master');
