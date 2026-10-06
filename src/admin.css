@@ -1,0 +1,92 @@
+/* Админка: те же токены, что у сайта, но плотнее и спокойнее. */
+.admin { padding-bottom: 40px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.admin select, .adm-int input, .adm-day input {
+  min-height: 40px; padding: 6px 10px; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 3px; font: inherit;
+}
+.field select { min-height: 50px; padding: 12px 14px; }
+.btn--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+.tag { display: inline-block; padding: 1px 8px; border: 1px solid var(--line); border-radius: 2px; font-size: .8rem; color: var(--muted); }
+
+.login { max-width: 400px; margin: 12vh auto 0; padding: 0 var(--gutter); }
+.login__brand { font: 400 2.4rem/1 var(--f-display); color: var(--accent); }
+.login__title { font: 400 2.6rem/1 var(--f-display); margin: 0 0 12px; }
+.login__msg { margin-top: 14px; min-height: 1.5em; }
+
+.adm-top {
+  position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px;
+  padding: 12px var(--gutter); background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.adm-top__brand { margin: 0; font: 400 1.8rem/1 var(--f-display); }
+.adm-top__brand .muted { font: 400 .9rem var(--f-text); }
+.adm-tabs { display: flex; gap: 4px; overflow-x: auto; order: 3; width: 100%; }
+.adm-tabs a { padding: 8px 12px; text-decoration: none; border-radius: 2px; white-space: nowrap; }
+.adm-tabs a[aria-current] { background: var(--accent); color: var(--accent-ink); }
+.adm-top__me { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: .9rem; }
+.adm-main { padding: 24px var(--gutter); max-width: 1100px; }
+.adm-main:focus { outline: none; }
+.adm-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.adm-day { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.adm-h1 { margin: 0 0 6px; font: 400 clamp(2rem, 6vw, 3rem)/1 var(--f-display); }
+.adm-h1::first-letter { text-transform: uppercase; }
+.adm-h2 { margin: 36px 0 14px; font: 400 2rem/1 var(--f-display); }
+.adm-dialog .adm-h2 { margin-top: 0; }
+
+.bookings { list-style: none; margin: 18px 0 0; padding: 0; }
+.booking { display: grid; grid-template-columns: 76px 1fr; gap: 6px 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+.booking p { margin: 0 0 2px; }
+.booking__time { font: 400 1.6rem/1 var(--f-display); }
+.booking__time .muted { display: block; font: .85rem var(--f-text); margin-top: 4px; }
+.booking__comment { font-style: italic; }
+.booking__src { font-size: .85rem; }
+.booking select { grid-column: 2; justify-self: start; }
+.booking--cancelled, .booking--no_show { opacity: .55; }
+.booking--new .booking__time { color: var(--accent); }
+
+.adm-list { list-style: none; margin: 0; padding: 0; }
+.adm-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.adm-item.is-off .adm-item__main { opacity: .6; }
+.adm-item__main { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-width: 0; flex: 1; }
+.adm-item__actions { display: flex; gap: 8px; }
+.adm-thumb { width: 56px; height: 56px; object-fit: cover; }
+.adm-clip { flex-basis: 100%; color: var(--muted); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.adm-form { display: block; }
+.adm-dialog .adm-form { padding: 24px 20px; overflow-y: auto; }
+.adm-dialog[open] { display: block; overflow-y: auto; }
+.adm-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 12px; align-items: end; }
+.adm-actions { display: flex; gap: 10px; margin-top: 20px; }
+.adm-check { display: flex; gap: 10px; align-items: center; margin: 8px 0 16px; }
+.adm-check input, .adm-checks input { width: 20px; height: 20px; accent-color: var(--accent); }
+.adm-checks { border: 1px solid var(--line); border-radius: 3px; padding: 10px 14px; margin: 0 0 16px; display: grid; gap: 8px; }
+.adm-checks legend { padding: 0 6px; font-weight: 600; font-size: .95rem; }
+.adm-checks label { display: flex; gap: 10px; align-items: center; }
+.adm-image img { width: 120px; height: 120px; object-fit: cover; margin-bottom: 8px; }
+.adm-free { margin: -4px 0 14px; }
+.adm-free .slots { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); }
+.adm-free .slot { min-height: 36px; font-size: .9rem; }
+
+.adm-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm-week { display: grid; gap: 10px; }
+.adm-wd { border: 1px solid var(--line); border-radius: 3px; padding: 10px 14px 14px; margin: 0; }
+.adm-wd legend { padding: 0 6px; font-weight: 600; }
+.adm-intervals { display: grid; gap: 8px; margin-bottom: 10px; }
+.adm-int { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.adm-int label { display: flex; gap: 6px; align-items: center; }
+.adm-free-day { margin: 0; }
+.adm-off { margin-bottom: 12px; }
+.adm-off .btn { margin-bottom: 16px; }
+
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: grid; gap: 8px; max-width: min(420px, calc(100% - 32px)); }
+.toast { margin: 0; padding: 12px 16px; background: var(--bg-raised); border-left: 3px solid var(--accent); box-shadow: 0 6px 24px rgb(0 0 0 / .35); }
+.toast--error { border-left-color: var(--danger); }
+
+@media (min-width: 900px) {
+  .adm-tabs { order: 0; width: auto; }
+  .adm-wd { display: grid; grid-template-columns: 160px 1fr auto; align-items: center; gap: 12px; }
+  .adm-wd legend { float: left; padding: 0; }
+  .adm-intervals { margin: 0; }
+  .booking { grid-template-columns: 90px 1fr 200px; align-items: start; }
+  .booking select { grid-column: 3; grid-row: 1; justify-self: end; }
+}

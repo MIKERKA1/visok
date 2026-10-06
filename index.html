@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{siteUrl}}">
+  <meta name="theme-color" content="{{colorBg}}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="{{name}}">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:url" content="{{siteUrl}}">
+  <meta property="og:image" content="{{siteUrl}}og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preload" as="image" href="img/hero-800.webp" imagesrcset="img/hero-800.webp 800w, img/hero-1400.webp 1400w" imagesizes="(min-width: 960px) 50vw, 100vw" fetchpriority="high">
+  <script>
+    // Начальные состояния анимаций прячем только когда JS есть и движение не отключено.
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+  </script>
+  <script type="application/ld+json">{{jsonLd}}</script>
+</head>
+<body>
+  <a class="skip" href="#main">К содержимому</a>
+
+  <header class="top">
+    <a class="brand" href="./" aria-label="{{name}}, на главную">
+      {{logo}}
+    </a>
+    <nav class="top__nav" aria-label="Разделы">
+      <a href="#services">Прайс</a>
+      <a href="#masters">Мастера</a>
+      <a href="#works">Работы</a>
+      <a href="#contacts">Как добраться</a>
+    </nav>
+    <a class="top__phone" href="tel:{{phoneHref}}">{{phone}}</a>
+    <button class="btn btn--small top__cta" type="button" data-book>Записаться</button>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__photo">
+        <img src="img/hero-800.webp" srcset="img/hero-800.webp 800w, img/hero-1400.webp 1400w" sizes="(min-width: 960px) 50vw, 100vw"
+             alt="Барбер правит контур на шее опасной бритвой" width="1400" height="1750" fetchpriority="high">
+      </div>
+      <div class="hero__body">
+        <h1 class="hero__title" id="hero-title">{{name}}</h1>
+        <svg class="razor" viewBox="0 0 1000 12" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path class="razor__edge" d="M0 6 H930 L1000 1" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <p class="hero__kind">{{kind}} {{district}}</p>
+        <p class="hero__lead">{{tagline}}</p>
+        <div class="hero__actions">
+          <button class="btn" type="button" data-book>Записаться</button>
+          <a class="link" href="#services">Посмотреть цены</a>
+        </div>
+        <dl class="hero__facts">
+          <div>
+            <dt>Адрес</dt>
+            <dd>{{street}}<br><span class="muted">{{metro}}</span></dd>
+          </div>
+          <div>
+            <dt>Часы</dt>
+            <dd>{{hoursShort}}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="services" id="services" aria-labelledby="services-title">
+      <div class="services__aside">
+        <h2 class="h2" id="services-title">Прайс</h2>
+        <p class="lead">Цена окончательная, за длину волос не доплачиваете. Нажмите на услугу, чтобы записаться.</p>
+        <img class="services__img" src="img/tools.webp" alt="Машинки, ножницы и расчёска на сланцевой доске" width="900" height="600" loading="lazy" decoding="async">
+      </div>
+      <div class="services__list" data-slot="services"><!--services--></div>
+    </section>
+
+    <section class="masters" id="masters" aria-labelledby="masters-title">
+      <header class="section-head">
+        <h2 class="h2" id="masters-title">Мастера</h2>
+        <p class="lead">Можно выбрать мастера или записаться к любому, кто свободен.</p>
+      </header>
+      <div class="masters__grid" data-slot="masters"><!--masters--></div>
+    </section>
+
+    <section class="works" id="works" aria-labelledby="works-title">
+      <header class="section-head">
+        <h2 class="h2" id="works-title">Работы</h2>
+        <p class="lead">Снимаем в зале сразу после стрижки.</p>
+      </header>
+      <div class="works__grid" data-slot="gallery"><!--gallery--></div>
+    </section>
+
+    <section class="reviews" id="reviews" aria-labelledby="reviews-title">
+      <header class="section-head">
+        <h2 class="h2" id="reviews-title">Отзывы</h2>
+        <p class="note">Демо: отзывы и заведение вымышлены.</p>
+      </header>
+      <div class="reviews__list" data-slot="reviews"><!--reviews--></div>
+    </section>
+
+    <section class="contacts" id="contacts" aria-labelledby="contacts-title">
+      <div class="contacts__info">
+        <h2 class="h2" id="contacts-title">Как добраться</h2>
+        <p class="contacts__address">{{street}}, {{city}}</p>
+        <p>{{addressNote}}</p>
+        <h3 class="h3">Парковка</h3>
+        <p>{{parking}}</p>
+        <h3 class="h3">Часы работы</h3>
+        <dl class="hours">{{hoursRows}}</dl>
+        <p class="contacts__phone"><a href="tel:{{phoneHref}}">{{phone}}</a></p>
+      </div>
+      <div class="contacts__map">
+        <iframe src="{{mapSrc}}" title="Карта: {{street}}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <a class="link" href="{{mapLink}}" target="_blank" rel="noopener">Открыть в Яндекс Картах</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot__name" data-name="{{name}}" aria-hidden="true"></div>
+    <div class="foot__cols">
+      <div>
+        <p><a href="tel:{{phoneHref}}">{{phone}}</a></p>
+        <p>{{street}}, {{city}}</p>
+        <p>{{hoursShort}}</p>
+      </div>
+      <ul class="foot__social" role="list">{{socials}}</ul>
+    </div>
+    {{demo}}
+    <p class="foot__staff"><a href="admin.html" rel="nofollow">Вход для сотрудников</a></p>
+  </footer>
+
+  <div class="dock">
+    <button class="btn btn--wide" type="button" data-book>Записаться</button>
+  </div>
+
+  <dialog class="sheet" id="booking" aria-labelledby="booking-title">
+    <div class="sheet__head">
+      <button class="sheet__back" type="button" data-back aria-label="Назад" hidden>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <div class="sheet__titles">
+        <p class="sheet__step" id="booking-step"></p>
+        <h2 class="sheet__title" id="booking-title">Запись</h2>
+      </div>
+      <button class="sheet__close" type="button" data-close aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+    </div>
+    <div class="sheet__progress" aria-hidden="true"><span></span></div>
+    <div class="sheet__body" aria-live="polite"></div>
+  </dialog>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Фото работы">
+    <button class="lightbox__close" type="button" data-close aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+    <figure class="lightbox__fig">
+      <figcaption></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" data-prev aria-label="Предыдущее фото">
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" data-next aria-label="Следующее фото">
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </dialog>
+
+  <!--data-->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
